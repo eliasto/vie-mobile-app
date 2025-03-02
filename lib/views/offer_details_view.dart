@@ -53,12 +53,12 @@ class OfferDetailsView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (offer.organizationUrlImage != null && offer.organizationUrlImage!.isNotEmpty)
+                  if (offer.cleanOrganizationUrlImage != null && offer.cleanOrganizationUrlImage!.isNotEmpty)
                     SizedBox(
                       height: 100,
                       width: double.infinity,
                       child: Image.network(
-                        offer.organizationUrlImage!,
+                        offer.cleanOrganizationUrlImage!,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(

@@ -62,6 +62,16 @@ class FavoritesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: const Text('Favoris'),
+          backgroundColor: CupertinoTheme.of(context).barBackgroundColor,
+        ),
+        child: _buildBody(context),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -69,27 +79,145 @@ class FavoritesView extends StatelessWidget {
           style: ShadTheme.of(context).textTheme.h4,
         ),
       ),
-      body: BlocBuilder<VieCubit, VieState>(
-        builder: (context, state) {
-          if (state.favorites.isEmpty) {
-            return const Center(
-              child: Text('Aucune offre en favoris'),
-            );
-          }
+      body: _buildBody(context),
+    );
+  }
 
-          return ListView.builder(
-            itemCount: state.favorites.length,
-            itemBuilder: (context, index) {
-              final offer = state.favorites[index];
-              return _buildOfferCard(context, offer);
-            },
+  Widget _buildBody(BuildContext context) {
+    return BlocBuilder<VieCubit, VieState>(
+      builder: (context, state) {
+        if (state.favorites.isEmpty) {
+          return Center(
+            child: Text(
+              'Aucune offre en favoris',
+              style: Platform.isIOS
+                  ? const TextStyle(
+                      fontSize: 17,
+                      color: CupertinoColors.secondaryLabel,
+                    )
+                  : null,
+            ),
           );
-        },
-      ),
+        }
+
+        return ListView.builder(
+          itemCount: state.favorites.length,
+          itemBuilder: (context, index) {
+            final offer = state.favorites[index];
+            return Column(
+              children: [
+                _buildOfferCard(context, offer),
+                const SizedBox(height: 16),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildOfferCard(BuildContext context, VieOffer offer) {
+    Widget cardContent = Platform.isIOS
+        ? CupertinoListTile(
+            leading: _buildLeadingImage(offer),
+            title: Text(
+              offer.organizationName,
+              style: const TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.missionTitle,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    color: CupertinoColors.label,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${offer.cleanCityName}, ${offer.countryName}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: CupertinoColors.secondaryLabel,
+                  ),
+                ),
+              ],
+            ),
+            onTap: () => _navigateToDetails(context, offer),
+          )
+        : ListTile(
+            leading: _buildLeadingImage(offer),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.organizationName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  offer.missionTitle,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Text('${offer.cleanCityName}, ${offer.countryName}'),
+            onTap: () => _navigateToDetails(context, offer),
+          );
+
+    if (Platform.isIOS) {
+      return Dismissible(
+        key: Key(offer.id.toString()),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          color: CupertinoColors.destructiveRed,
+          child: const Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.delete,
+                  color: CupertinoColors.white,
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Supprimer',
+                  style: TextStyle(
+                    color: CupertinoColors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        confirmDismiss: (direction) => _showDeleteConfirmationDialog(context),
+        onDismissed: (direction) => _handleDismiss(context, offer),
+        child: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: CupertinoColors.separator,
+                width: 0.0,
+              ),
+            ),
+          ),
+          child: cardContent,
+        ),
+      );
+    }
+
     return Dismissible(
       key: Key(offer.id.toString()),
       direction: DismissDirection.endToStart,
@@ -116,73 +244,52 @@ class FavoritesView extends StatelessWidget {
         ),
       ),
       confirmDismiss: (direction) => _showDeleteConfirmationDialog(context),
-      onDismissed: (direction) {
-        context.read<VieCubit>().toggleFavorite(offer);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Offre retirée des favoris'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      },
+      onDismissed: (direction) => _handleDismiss(context, offer),
       child: Card(
         margin: const EdgeInsets.all(8),
-        child: ListTile(
-          leading: offer.organizationUrlImage != null
-              ? SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Image.network(
-                    offer.organizationUrlImage!,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.business,
-                        size: 24,
-                        color: Colors.grey,
-                      );
-                    },
-                  ),
-                )
-              : const SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    Icons.business,
-                    size: 24,
-                    color: Colors.grey,
-                  ),
-                ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                offer.organizationName,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              Text(
-                offer.missionTitle,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          subtitle: Text('${offer.cleanCityName}, ${offer.countryName}'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OfferDetailsView(offer: offer),
-              ),
-            );
-          },
-        ),
+        child: cardContent,
       ),
     );
+  }
+
+  Widget _buildLeadingImage(VieOffer offer) {
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: offer.cleanOrganizationUrlImage != null
+          ? Image.network(
+              offer.cleanOrganizationUrlImage!,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Platform.isIOS ? CupertinoIcons.building_2_fill : Icons.business,
+                  size: 24,
+                  color: Platform.isIOS ? CupertinoColors.secondaryLabel : Colors.grey,
+                );
+              },
+            )
+          : Icon(
+              Platform.isIOS ? CupertinoIcons.building_2_fill : Icons.business,
+              size: 24,
+              color: Platform.isIOS ? CupertinoColors.secondaryLabel : Colors.grey,
+            ),
+    );
+  }
+
+  void _navigateToDetails(BuildContext context, VieOffer offer) {
+    Navigator.push(
+      context,
+      Platform.isIOS
+          ? CupertinoPageRoute(
+              builder: (context) => OfferDetailsView(offer: offer),
+            )
+          : MaterialPageRoute(
+              builder: (context) => OfferDetailsView(offer: offer),
+            ),
+    );
+  }
+
+  void _handleDismiss(BuildContext context, VieOffer offer) {
+    context.read<VieCubit>().toggleFavorite(offer);
   }
 }

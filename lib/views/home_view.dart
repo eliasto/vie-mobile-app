@@ -179,20 +179,18 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildOfferCard(BuildContext context, VieOffer offer) {
-    final favoriteOnImage =
-        offer.organizationUrlImage?.isNotEmpty == true && offer.organizationUrlImage != "http://null.jpeg";
     return ShadCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (favoriteOnImage)
-            Stack(
-              children: [
+          Stack(
+            children: [
+              if (offer.cleanOrganizationUrlImage?.isNotEmpty == true)
                 SizedBox(
                   height: 100,
                   width: double.infinity,
                   child: Image.network(
-                    offer.organizationUrlImage!,
+                    offer.cleanOrganizationUrlImage!,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -210,13 +208,30 @@ class _HomeViewState extends State<HomeView> {
                     },
                   ),
                 ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: FavoriteButton(offer: offer),
+              if (offer.cleanOrganizationUrlImage == null || offer.cleanOrganizationUrlImage!.isEmpty)
+                SizedBox(
+                  height: 100,
+                  width: double.infinity,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.business,
+                        size: 48,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: FavoriteButton(offer: offer),
+              ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -225,14 +240,15 @@ class _HomeViewState extends State<HomeView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      offer.organizationName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        offer.organizationName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    if (!favoriteOnImage) FavoriteButton(offer: offer)
                   ],
                 ),
                 const SizedBox(height: 8),

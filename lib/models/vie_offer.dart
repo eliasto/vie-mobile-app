@@ -24,6 +24,16 @@ class VieOffer extends HiveObject {
 
   String get cleanCityName => cityName.trim();
 
+  String? get cleanOrganizationUrlImage {
+    if (organizationUrlImage == null) {
+      return null;
+    }
+    if (organizationUrlImage == 'null.jpeg' || organizationUrlImage == 'null.jpg') {
+      return null;
+    }
+    return organizationUrlImage;
+  }
+
   @HiveField(5)
   final String countryName;
 
