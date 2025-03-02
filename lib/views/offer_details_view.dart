@@ -3,6 +3,7 @@ import '../models/vie_offer.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 import '../blocs/vie_cubit.dart';
 import '../blocs/vie_state.dart';
 
@@ -17,6 +18,16 @@ class OfferDetailsView extends StatelessWidget {
       appBar: AppBar(
         title: Text(offer.missionTitle, style: ShadTheme.of(context).textTheme.h4),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () async {
+              final offerLink = "https://mon-vie-via.businessfrance.fr/offres/${offer.id}";
+              await Share.share(
+                'Découvre cette offre VIE : ${offer.missionTitle} chez ${offer.organizationName}\n\n$offerLink',
+                subject: 'Offre VIE intéressante',
+              );
+            },
+          ),
           BlocBuilder<VieCubit, VieState>(
             builder: (context, state) {
               final isFavorite = context.read<VieCubit>().isFavorite(offer);
@@ -54,7 +65,7 @@ class OfferDetailsView extends StatelessWidget {
                             child: Icon(
                               Icons.business,
                               size: 48,
-                              color: Colors.white,
+                              color: Colors.grey,
                             ),
                           );
                         },
