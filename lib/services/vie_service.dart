@@ -21,10 +21,24 @@ class VieService {
       'sec-fetch-mode': 'cors',
       'sec-fetch-site': 'cross-site',
     };
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-      error: true,
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        LoggerService.debug(
+            'Request: ${options.method} ${options.uri}\nHeaders: ${options.headers}\nData: ${options.data}');
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        LoggerService.debug('Response: ${response.statusCode}\nData: ${response.data}');
+        return handler.next(response);
+      },
+      onError: (error, handler) {
+        LoggerService.error(
+          'API Error: ${error.message}',
+          error,
+          error.stackTrace,
+        );
+        return handler.next(error);
+      },
     ));
   }
 

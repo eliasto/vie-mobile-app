@@ -43,7 +43,7 @@ class OfferDetailsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (offer.organizationUrlImage != null && offer.organizationUrlImage!.isNotEmpty)
-                    Container(
+                    SizedBox(
                       height: 100,
                       width: double.infinity,
                       child: Image.network(
@@ -170,7 +170,7 @@ class OfferDetailsView extends StatelessWidget {
                 color: Theme.of(context).scaffoldBackgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, -2),
                   ),
