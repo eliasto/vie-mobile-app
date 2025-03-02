@@ -100,6 +100,39 @@ class VieCubit extends Cubit<VieState> {
     return state.favorites.any((fav) => fav.id == offer.id);
   }
 
+  Future<void> loadMoreOffers() async {
+    if (state.isLoading || state.hasReachedMax) return;
+
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      final newOffers = await _vieService.searchOffers(
+        skip: state.offers.length,
+        limit: 10,
+        specializationsIds: state.selectedSpecializations,
+        sectorsIds: state.selectedSectors,
+        durations: state.selectedDurations,
+        countriesIds: state.selectedCountries,
+        geographicZoneIds: state.selectedGeographicZones,
+        studyLevelIds: state.selectedStudyLevels,
+        missionTypeIds: state.selectedMissionTypes,
+        entrepriseTypeIds: state.selectedEntrepriseTypes,
+      );
+
+      emit(state.copyWith(
+        offers: [...state.offers, ...newOffers],
+        isLoading: false,
+        hasReachedMax: newOffers.isEmpty,
+        currentPage: state.currentPage + 1,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      ));
+    }
+  }
+
   @override
   Future<void> close() async {
     await _favoritesBox.close();

@@ -9,8 +9,33 @@ import '../services/logger_service.dart';
 import 'offer_details_view.dart';
 import 'filter_view.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<VieCubit>().loadMoreOffers();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +61,11 @@ class HomeView extends StatelessWidget {
       ),
       body: BlocBuilder<VieCubit, VieState>(
         builder: (context, state) {
-          if (state.isLoading) {
+          if (state.isLoading && state.offers.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.error != null) {
+          if (state.error != null && state.offers.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -132,8 +157,17 @@ class HomeView extends StatelessWidget {
               await context.read<VieCubit>().searchOffers();
             },
             child: ListView.builder(
-              itemCount: state.offers.length,
+              controller: _scrollController,
+              itemCount: state.offers.length + (state.hasReachedMax ? 0 : 1),
               itemBuilder: (context, index) {
+                if (index >= state.offers.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: state.isLoading ? const CircularProgressIndicator() : const SizedBox.shrink(),
+                    ),
+                  );
+                }
                 final offer = state.offers[index];
                 return _buildOfferCard(context, offer);
               },

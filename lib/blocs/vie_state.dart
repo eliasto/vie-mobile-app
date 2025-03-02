@@ -16,6 +16,8 @@ class VieState extends Equatable {
   final List<int> selectedStudyLevels;
   final List<int> selectedMissionTypes;
   final List<int> selectedEntrepriseTypes;
+  final bool hasReachedMax;
+  final int currentPage;
 
   const VieState({
     this.offers = const [],
@@ -31,6 +33,8 @@ class VieState extends Equatable {
     this.selectedStudyLevels = const [],
     this.selectedMissionTypes = const [],
     this.selectedEntrepriseTypes = const [],
+    this.hasReachedMax = false,
+    this.currentPage = 0,
   });
 
   VieState copyWith({
@@ -47,6 +51,8 @@ class VieState extends Equatable {
     List<int>? selectedStudyLevels,
     List<int>? selectedMissionTypes,
     List<int>? selectedEntrepriseTypes,
+    bool? hasReachedMax,
+    int? currentPage,
   }) {
     return VieState(
       offers: offers ?? this.offers,
@@ -62,6 +68,8 @@ class VieState extends Equatable {
       selectedStudyLevels: selectedStudyLevels ?? this.selectedStudyLevels,
       selectedMissionTypes: selectedMissionTypes ?? this.selectedMissionTypes,
       selectedEntrepriseTypes: selectedEntrepriseTypes ?? this.selectedEntrepriseTypes,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      currentPage: currentPage ?? this.currentPage,
     );
   }
 
@@ -80,6 +88,8 @@ class VieState extends Equatable {
         selectedStudyLevels,
         selectedMissionTypes,
         selectedEntrepriseTypes,
+        hasReachedMax,
+        currentPage,
       ];
 }
 
