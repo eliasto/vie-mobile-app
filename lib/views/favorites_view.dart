@@ -187,7 +187,7 @@ class FavoritesView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  CupertinoIcons.delete,
+                  LucideIcons.trash,
                   color: CupertinoColors.white,
                 ),
                 SizedBox(height: 4),
@@ -262,14 +262,14 @@ class FavoritesView extends StatelessWidget {
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
                 return Icon(
-                  Platform.isIOS ? CupertinoIcons.building_2_fill : Icons.business,
+                  Platform.isIOS ? LucideIcons.briefcaseBusiness : Icons.business,
                   size: 24,
                   color: Platform.isIOS ? CupertinoColors.secondaryLabel : Colors.grey,
                 );
               },
             )
           : Icon(
-              Platform.isIOS ? CupertinoIcons.building_2_fill : Icons.business,
+              Platform.isIOS ? LucideIcons.briefcaseBusiness : Icons.business,
               size: 24,
               color: Platform.isIOS ? CupertinoColors.secondaryLabel : Colors.grey,
             ),
