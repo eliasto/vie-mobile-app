@@ -179,11 +179,13 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildOfferCard(BuildContext context, VieOffer offer) {
+    final favoriteOnImage =
+        offer.organizationUrlImage?.isNotEmpty == true && offer.organizationUrlImage != "http://null.jpeg";
     return ShadCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (offer.organizationUrlImage?.isNotEmpty == true && offer.organizationUrlImage != "http://null.jpeg")
+          if (favoriteOnImage)
             Stack(
               children: [
                 SizedBox(
@@ -211,34 +213,7 @@ class _HomeViewState extends State<HomeView> {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: BlocBuilder<VieCubit, VieState>(
-                    builder: (context, state) {
-                      final isFavorite = context.read<VieCubit>().isFavorite(offer);
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            size: 20,
-                            color: isFavorite ? Colors.red : Colors.grey,
-                          ),
-                          onPressed: () {
-                            context.read<VieCubit>().toggleFavorite(offer);
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                  child: FavoriteButton(offer: offer),
                 ),
               ],
             ),
@@ -247,12 +222,18 @@ class _HomeViewState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  offer.organizationName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      offer.organizationName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (!favoriteOnImage) FavoriteButton(offer: offer)
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -354,6 +335,43 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class FavoriteButton extends StatelessWidget {
+  final VieOffer offer;
+  const FavoriteButton({super.key, required this.offer});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<VieCubit, VieState>(
+      builder: (context, state) {
+        final isFavorite = context.read<VieCubit>().isFavorite(offer);
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              size: 20,
+              color: isFavorite ? Colors.red : Colors.grey,
+            ),
+            onPressed: () {
+              context.read<VieCubit>().toggleFavorite(offer);
+            },
+          ),
+        );
+      },
     );
   }
 }
