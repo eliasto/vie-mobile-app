@@ -88,22 +88,16 @@ class VieInitial extends VieState {}
 class VieLoading extends VieState {}
 
 class VieLoaded extends VieState {
-  final List<VieOffer> offers;
   final bool hasReachedMax;
-  final VieFilters? filters;
-  final List<String> selectedCountries;
-  final List<String> selectedSectors;
-  final List<String> selectedSpecializations;
-  final List<int> selectedDurations;
 
   const VieLoaded({
-    required this.offers,
+    super.offers = const [],
+    super.filters,
+    super.selectedCountries = const [],
+    super.selectedSectors = const [],
+    super.selectedSpecializations = const [],
+    super.selectedDurations = const [],
     this.hasReachedMax = false,
-    this.filters,
-    this.selectedCountries = const [],
-    this.selectedSectors = const [],
-    this.selectedSpecializations = const [],
-    this.selectedDurations = const [],
   });
 
   @override

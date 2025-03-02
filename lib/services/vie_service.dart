@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/vie_offer.dart';
 import '../models/filters.dart';
+import 'logger_service.dart';
 
 class VieService {
   final Dio _dio;
@@ -57,7 +58,7 @@ class VieService {
         'missionStartDate': null,
       };
 
-      print('Sending request with data: $requestData');
+      LoggerService.debug('Sending request with data: $requestData');
 
       final response = await _dio.post(
         '$baseUrl/Offers/search',
@@ -67,11 +68,13 @@ class VieService {
       final List<dynamic> results = response.data['result'];
       return results.map((json) => VieOffer.fromJson(json)).toList();
     } catch (e) {
-      print('Error details: $e');
       if (e is DioException) {
-        print('Response data: ${e.response?.data}');
-        print('Response headers: ${e.response?.headers}');
-        print('Request data: ${e.requestOptions.data}');
+        LoggerService.error('Error details: $e');
+        if (e.response != null) {
+          LoggerService.error('Response data: ${e.response?.data}');
+          LoggerService.error('Response headers: ${e.response?.headers}');
+          LoggerService.error('Request data: ${e.requestOptions.data}');
+        }
       }
       throw Exception('Erreur lors de la recherche des offres VIE: $e');
     }
@@ -100,9 +103,11 @@ class VieService {
               ))
           .toList();
     } catch (e) {
-      print('Error fetching countries: $e');
       if (e is DioException) {
-        print('Response data: ${e.response?.data}');
+        LoggerService.error('Error fetching countries: $e');
+        if (e.response != null) {
+          LoggerService.error('Response data: ${e.response?.data}');
+        }
       }
       throw Exception('Erreur lors de la récupération des pays: $e');
     }
@@ -157,9 +162,11 @@ class VieService {
         durations: [6, 12, 18, 24],
       );
     } catch (e) {
-      print('Error fetching filters: $e');
       if (e is DioException) {
-        print('Response data: ${e.response?.data}');
+        LoggerService.error('Error fetching filters: $e');
+        if (e.response != null) {
+          LoggerService.error('Response data: ${e.response?.data}');
+        }
       }
       throw Exception('Erreur lors de la récupération des filtres: $e');
     }

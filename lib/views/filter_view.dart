@@ -22,7 +22,7 @@ class _FilterViewState extends State<FilterView> {
   final Set<int> _selectedStudyLevels = {};
   final Set<int> _selectedMissionTypes = {};
   final Set<int> _selectedEntrepriseTypes = {};
-  Map<String, List<FilterOption>> _countriesByZone = {};
+  final Map<String, List<FilterOption>> _countriesByZone = {};
   bool _isLoadingCountries = false;
 
   @override
@@ -257,7 +257,7 @@ class _FilterViewState extends State<FilterView> {
               ),
             ],
           );
-        }).toList(),
+        }),
         const SizedBox(height: 16),
       ],
     );
@@ -272,19 +272,23 @@ class _FilterViewState extends State<FilterView> {
 
     try {
       final countries = await context.read<VieService>().getCountriesByZone(zoneId);
+      if (!mounted) return;
       setState(() {
         _countriesByZone[zoneId] = countries;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erreur lors du chargement des pays'),
         ),
       );
     } finally {
-      setState(() {
-        _isLoadingCountries = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoadingCountries = false;
+        });
+      }
     }
   }
 

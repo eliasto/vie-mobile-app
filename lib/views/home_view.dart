@@ -5,6 +5,7 @@ import '../blocs/vie_cubit.dart';
 import '../blocs/vie_state.dart';
 import '../models/vie_offer.dart';
 import '../services/vie_service.dart';
+import '../services/logger_service.dart';
 import 'offer_details_view.dart';
 import 'filter_view.dart';
 
@@ -298,7 +299,7 @@ class HomeView extends StatelessWidget {
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                              print(e);
+                              LoggerService.error('Erreur lors du chargement des détails de l\'offre', e);
                             }
                           }
                         },

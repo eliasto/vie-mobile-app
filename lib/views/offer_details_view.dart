@@ -46,9 +46,6 @@ class OfferDetailsView extends StatelessWidget {
                     Container(
                       height: 100,
                       width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Colors.grey,
-                      ),
                       child: Image.network(
                         offer.organizationUrlImage!,
                         fit: BoxFit.contain,
