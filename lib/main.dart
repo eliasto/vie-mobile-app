@@ -6,6 +6,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'blocs/vie_cubit.dart';
 import 'models/vie_offer.dart';
 import 'models/specialization.dart';
+import 'models/saved_filters.dart';
 import 'services/vie_service.dart';
 import 'views/main_view.dart';
 
@@ -15,8 +16,10 @@ void main() async {
 
   Hive.registerAdapter(VieOfferAdapter());
   Hive.registerAdapter(VieSpecializationAdapter());
+  Hive.registerAdapter(SavedFiltersAdapter());
 
   await Hive.openBox<VieOffer>('favorites');
+  await Hive.openBox<SavedFilters>('filters');
 
   runApp(const MainApp());
 }

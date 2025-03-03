@@ -4,6 +4,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import '../blocs/vie_cubit.dart';
 import '../blocs/vie_state.dart';
 import '../models/vie_offer.dart';
+import '../models/filters.dart';
 import '../services/vie_service.dart';
 import '../services/logger_service.dart';
 import 'offer_details_view.dart';
@@ -65,114 +66,237 @@ class _HomeViewState extends State<HomeView> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.error != null && state.offers.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Erreur',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.red,
+          return Column(
+            children: [
+              if (_hasActiveFilters(state))
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Filtres actifs',
+                            style: Theme.of(context).textTheme.titleSmall,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          state.error!,
-                          style: TextStyle(color: Colors.red.shade700),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ShadButton(
-                    onPressed: () {
-                      context.read<VieCubit>().searchOffers();
-                    },
-                    child: const Text('Réessayer'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state.offers.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off, size: 48, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text(
-                          'Aucune offre trouvée',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () {
+                              context.read<VieCubit>().clearFilters();
+                            },
+                            child: const Text('Effacer tout'),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ..._buildActiveFilters(state),
+                          ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Essayez de modifier vos critères de recherche',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ShadButton(
-                    onPressed: () {
-                      context.read<VieCubit>().searchOffers();
-                    },
-                    child: const Text('Réessayer'),
-                  ),
-                ],
+                ),
+              Expanded(
+                child: _buildContent(state),
               ),
-            );
-          }
+            ],
+          );
+        },
+      ),
+    );
+  }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              await context.read<VieCubit>().searchOffers();
-            },
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: state.offers.length + (state.hasReachedMax ? 0 : 1),
-              itemBuilder: (context, index) {
-                if (index >= state.offers.length) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: state.isLoading ? const CircularProgressIndicator() : const SizedBox.shrink(),
-                    ),
-                  );
-                }
-                final offer = state.offers[index];
-                return _buildOfferCard(context, offer);
+  bool _hasActiveFilters(VieState state) {
+    return state.selectedSpecializations.isNotEmpty ||
+        state.selectedSectors.isNotEmpty ||
+        state.selectedDurations.isNotEmpty ||
+        state.selectedCountries.isNotEmpty ||
+        state.selectedGeographicZones.isNotEmpty ||
+        state.selectedStudyLevels.isNotEmpty ||
+        state.selectedMissionTypes.isNotEmpty ||
+        state.selectedEntrepriseTypes.isNotEmpty;
+  }
+
+  List<Widget> _buildActiveFilters(VieState state) {
+    final filters = <Widget>[];
+    final filtersData = state.filters;
+    if (filtersData == null) return filters;
+
+    void addFilters(List<String> selected, List<FilterOption> options, String type) {
+      for (final id in selected) {
+        final option = options.firstWhere((o) => o.id == id, orElse: () => FilterOption(id: id, label: id));
+        filters.add(
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Chip(
+              label: Text('${option.label} ($type)'),
+              onDeleted: () {
+                // Supprimer le filtre spécifique
+                context.read<VieCubit>().removeFilter(type: type, value: id);
               },
             ),
-          );
+          ),
+        );
+      }
+    }
+
+    void addIntFilters(List<int> selected, List<FilterOption> options, String type) {
+      for (final id in selected) {
+        final option = options.firstWhere((o) => int.parse(o.id) == id,
+            orElse: () => FilterOption(id: id.toString(), label: id.toString()));
+        filters.add(
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Chip(
+              label: Text('${option.label} ($type)'),
+              onDeleted: () {
+                context.read<VieCubit>().removeFilter(type: type, value: id);
+              },
+            ),
+          ),
+        );
+      }
+    }
+
+    void addDurationFilters(List<int> selected) {
+      for (final duration in selected) {
+        filters.add(
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Chip(
+              label: Text('$duration mois'),
+              onDeleted: () {
+                context.read<VieCubit>().removeFilter(type: 'duration', value: duration);
+              },
+            ),
+          ),
+        );
+      }
+    }
+
+    addIntFilters(state.selectedMissionTypes, filtersData.missionTypes, 'mission');
+    addIntFilters(state.selectedStudyLevels, filtersData.studyLevels, 'study');
+    addIntFilters(state.selectedEntrepriseTypes, filtersData.entrepriseTypes, 'entreprise');
+    addFilters(state.selectedSectors, filtersData.sectors, 'sector');
+    addFilters(state.selectedSpecializations, filtersData.specializations, 'specialization');
+    addDurationFilters(state.selectedDurations);
+    addFilters(state.selectedGeographicZones, filtersData.geographicZones, 'zone');
+
+    return filters;
+  }
+
+  Widget _buildContent(VieState state) {
+    if (state.error != null && state.offers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Erreur',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    state.error!,
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ShadButton(
+              onPressed: () {
+                context.read<VieCubit>().searchOffers();
+              },
+              child: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state.offers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, size: 48, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text(
+                    'Aucune offre trouvée',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Essayez de modifier vos critères de recherche',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ShadButton(
+              onPressed: () {
+                context.read<VieCubit>().searchOffers();
+              },
+              child: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<VieCubit>().searchOffers();
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: state.offers.length + (state.hasReachedMax ? 0 : 1),
+        itemBuilder: (context, index) {
+          if (index >= state.offers.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: state.isLoading ? const CircularProgressIndicator() : const SizedBox.shrink(),
+              ),
+            );
+          }
+          final offer = state.offers[index];
+          return _buildOfferCard(context, offer);
         },
       ),
     );
