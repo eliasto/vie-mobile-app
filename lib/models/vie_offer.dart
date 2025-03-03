@@ -28,7 +28,9 @@ class VieOffer extends HiveObject {
     if (organizationUrlImage == null) {
       return null;
     }
-    if (organizationUrlImage == 'null.jpeg' || organizationUrlImage == 'null.jpg') {
+    if (organizationUrlImage == 'null.jpeg' ||
+        organizationUrlImage == 'null.jpg' ||
+        organizationUrlImage == "http://null.jpeg") {
       return null;
     }
     return organizationUrlImage;

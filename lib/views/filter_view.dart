@@ -47,62 +47,87 @@ class _FilterViewState extends State<FilterView> {
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSection(
-                  'Types de mission',
-                  filters.missionTypes,
-                  _selectedMissionTypes,
-                  (id) => int.parse(id),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: 100, // Espace pour les boutons
                 ),
-                _buildSection(
-                  'Niveaux d\'études',
-                  filters.studyLevels,
-                  _selectedStudyLevels,
-                  (id) => int.parse(id),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSection(
+                      'Types de mission',
+                      filters.missionTypes,
+                      _selectedMissionTypes,
+                      (id) => int.parse(id),
+                    ),
+                    _buildSection(
+                      'Niveaux d\'études',
+                      filters.studyLevels,
+                      _selectedStudyLevels,
+                      (id) => int.parse(id),
+                    ),
+                    _buildSection(
+                      'Types d\'entreprise',
+                      filters.entrepriseTypes,
+                      _selectedEntrepriseTypes,
+                      (id) => int.parse(id),
+                    ),
+                    _buildSection(
+                      'Secteurs d\'activité',
+                      filters.sectors,
+                      _selectedSectors,
+                    ),
+                    _buildSection(
+                      'Spécialisations',
+                      filters.specializations,
+                      _selectedSpecializations,
+                    ),
+                    _buildDurationsSection(filters.durations),
+                    _buildGeographicZonesSection(filters.geographicZones),
+                  ],
                 ),
-                _buildSection(
-                  'Types d\'entreprise',
-                  filters.entrepriseTypes,
-                  _selectedEntrepriseTypes,
-                  (id) => int.parse(id),
-                ),
-                _buildSection(
-                  'Secteurs d\'activité',
-                  filters.sectors,
-                  _selectedSectors,
-                ),
-                _buildSection(
-                  'Spécialisations',
-                  filters.specializations,
-                  _selectedSpecializations,
-                ),
-                _buildDurationsSection(filters.durations),
-                _buildGeographicZonesSection(filters.geographicZones),
-              ],
-            ),
-          ),
-          bottomNavigationBar: BottomAppBar(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ShadButton.outline(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Annuler'),
-                  ),
-                  const SizedBox(width: 8),
-                  ShadButton(
-                    onPressed: _applyFilters,
-                    child: const Text('Appliquer'),
-                  ),
-                ],
               ),
-            ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ShadButton.outline(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Annuler'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ShadButton(
+                          onPressed: _applyFilters,
+                          child: const Text('Appliquer'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
