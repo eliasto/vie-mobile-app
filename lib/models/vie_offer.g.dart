@@ -36,13 +36,15 @@ class VieOfferAdapter extends TypeAdapter<VieOffer> {
       contactName: fields[16] as String?,
       contactEmail: fields[17] as String?,
       specializations: (fields[18] as List?)?.cast<VieSpecialization>(),
+      missionStartDate: fields[19] as String?,
+      missionEndDate: fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, VieOffer obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -80,7 +82,11 @@ class VieOfferAdapter extends TypeAdapter<VieOffer> {
       ..writeByte(17)
       ..write(obj.contactEmail)
       ..writeByte(18)
-      ..write(obj.specializations);
+      ..write(obj.specializations)
+      ..writeByte(19)
+      ..write(obj.missionStartDate)
+      ..writeByte(20)
+      ..write(obj.missionEndDate);
   }
 
   @override
@@ -120,6 +126,8 @@ VieOffer _$VieOfferFromJson(Map<String, dynamic> json) => VieOffer(
       specializations: (json['specializations'] as List<dynamic>?)
           ?.map((e) => VieSpecialization.fromJson(e as Map<String, dynamic>))
           .toList(),
+      missionStartDate: json['missionStartDate'] as String?,
+      missionEndDate: json['missionEndDate'] as String?,
     );
 
 Map<String, dynamic> _$VieOfferToJson(VieOffer instance) => <String, dynamic>{
@@ -142,6 +150,8 @@ Map<String, dynamic> _$VieOfferToJson(VieOffer instance) => <String, dynamic>{
       'contactName': instance.contactName,
       'contactEmail': instance.contactEmail,
       'specializations': instance.specializations,
+      'missionStartDate': instance.missionStartDate,
+      'missionEndDate': instance.missionEndDate,
     };
 
 Specialization _$SpecializationFromJson(Map<String, dynamic> json) =>

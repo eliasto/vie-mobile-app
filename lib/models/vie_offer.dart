@@ -74,11 +74,21 @@ class VieOffer extends HiveObject {
 
   String? get cleanContactName => contactName?.trim().replaceAll(RegExp(r'\s+'), ' ');
 
+  DateTime? get startDate => missionStartDate != null ? DateTime.parse(missionStartDate!) : null;
+
+  DateTime? get endDate => missionEndDate != null ? DateTime.parse(missionEndDate!) : null;
+
   @HiveField(17)
   final String? contactEmail;
 
   @HiveField(18)
   final List<VieSpecialization>? specializations;
+
+  @HiveField(19)
+  final String? missionStartDate;
+
+  @HiveField(20)
+  final String? missionEndDate;
 
   VieOffer({
     required this.id,
@@ -100,6 +110,8 @@ class VieOffer extends HiveObject {
     this.contactName,
     this.contactEmail,
     this.specializations,
+    this.missionStartDate,
+    this.missionEndDate,
   });
 
   factory VieOffer.fromJson(Map<String, dynamic> json) {
@@ -119,48 +131,50 @@ class VieOffer extends HiveObject {
 
   Map<String, dynamic> toJson() => _$VieOfferToJson(this);
 
-  VieOffer copyWith({
-    int? id,
-    String? missionTitle,
-    String? organizationName,
-    String? organizationUrlImage,
-    String? cityName,
-    String? countryName,
-    int? missionDuration,
-    int? viewCounter,
-    int? candidateCounter,
-    String? missionDescription,
-    String? missionProfile,
-    String? organizationPresentation,
-    double? indemnite,
-    String? ca,
-    int? effectif,
-    String? reference,
-    String? contactName,
-    String? contactEmail,
-    List<VieSpecialization>? specializations,
-  }) {
+  VieOffer copyWith(
+      {int? id,
+      String? missionTitle,
+      String? organizationName,
+      String? organizationUrlImage,
+      String? cityName,
+      String? countryName,
+      int? missionDuration,
+      int? viewCounter,
+      int? candidateCounter,
+      String? missionDescription,
+      String? missionProfile,
+      String? organizationPresentation,
+      double? indemnite,
+      String? ca,
+      int? effectif,
+      String? reference,
+      String? contactName,
+      String? contactEmail,
+      List<VieSpecialization>? specializations,
+      String? missionStartDate,
+      String? missionEndDate}) {
     return VieOffer(
-      id: id ?? this.id,
-      missionTitle: missionTitle ?? this.missionTitle,
-      organizationName: organizationName ?? this.organizationName,
-      organizationUrlImage: organizationUrlImage ?? this.organizationUrlImage,
-      cityName: cityName ?? this.cityName,
-      countryName: countryName ?? this.countryName,
-      missionDuration: missionDuration ?? this.missionDuration,
-      viewCounter: viewCounter ?? this.viewCounter,
-      candidateCounter: candidateCounter ?? this.candidateCounter,
-      missionDescription: missionDescription ?? this.missionDescription,
-      missionProfile: missionProfile ?? this.missionProfile,
-      organizationPresentation: organizationPresentation ?? this.organizationPresentation,
-      indemnite: indemnite ?? this.indemnite,
-      ca: ca ?? this.ca,
-      effectif: effectif ?? this.effectif,
-      reference: reference ?? this.reference,
-      contactName: contactName ?? this.contactName,
-      contactEmail: contactEmail ?? this.contactEmail,
-      specializations: specializations ?? this.specializations,
-    );
+        id: id ?? this.id,
+        missionTitle: missionTitle ?? this.missionTitle,
+        organizationName: organizationName ?? this.organizationName,
+        organizationUrlImage: organizationUrlImage ?? this.organizationUrlImage,
+        cityName: cityName ?? this.cityName,
+        countryName: countryName ?? this.countryName,
+        missionDuration: missionDuration ?? this.missionDuration,
+        viewCounter: viewCounter ?? this.viewCounter,
+        candidateCounter: candidateCounter ?? this.candidateCounter,
+        missionDescription: missionDescription ?? this.missionDescription,
+        missionProfile: missionProfile ?? this.missionProfile,
+        organizationPresentation: organizationPresentation ?? this.organizationPresentation,
+        indemnite: indemnite ?? this.indemnite,
+        ca: ca ?? this.ca,
+        effectif: effectif ?? this.effectif,
+        reference: reference ?? this.reference,
+        contactName: contactName ?? this.contactName,
+        contactEmail: contactEmail ?? this.contactEmail,
+        specializations: specializations ?? this.specializations,
+        missionStartDate: missionStartDate ?? this.missionStartDate,
+        missionEndDate: missionEndDate ?? this.missionEndDate);
   }
 }
 

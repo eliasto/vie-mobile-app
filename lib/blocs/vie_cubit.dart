@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
-import '../models/filters.dart';
 import '../models/vie_offer.dart';
 import '../models/saved_filters.dart';
 import '../services/vie_service.dart';

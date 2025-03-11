@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import '../models/vie_offer.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import '../blocs/vie_cubit.dart';
 import '../blocs/vie_state.dart';
+import 'package:intl/intl.dart';
 
 class OfferDetailsView extends StatelessWidget {
   final VieOffer offer;
@@ -14,6 +17,7 @@ class OfferDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customStartDate = offer.startDate != null ? DateFormat('MMMM yyyy', 'fr_FR').format(offer.startDate!) : null;
     return Scaffold(
       appBar: AppBar(
         title: Text(offer.missionTitle, style: ShadTheme.of(context).textTheme.h4),
@@ -80,8 +84,19 @@ class OfferDetailsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
+                      if (customStartDate != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(customStartDate),
+                        ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -90,7 +105,6 @@ class OfferDetailsView extends StatelessWidget {
                         ),
                         child: Text('${offer.missionDuration} mois'),
                       ),
-                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
