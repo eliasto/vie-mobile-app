@@ -303,6 +303,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildOfferCard(BuildContext context, VieOffer offer) {
+    final customStartDate = offer.startDate != null ? DateFormat('MMMM yyyy', 'fr_FR').format(offer.startDate!) : null;
+
     return ShadCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,6 +387,15 @@ class _HomeViewState extends State<HomeView> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
+                    if (customStartDate != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text('Début $customStartDate'),
+                      ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
